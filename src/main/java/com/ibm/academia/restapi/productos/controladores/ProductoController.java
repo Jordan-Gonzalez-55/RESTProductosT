@@ -5,6 +5,7 @@ import com.ibm.academia.restapi.productos.modelos.servicios.ProductoServiceDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,6 +29,9 @@ public class ProductoController {
     @Autowired
     private Environment environment;
 
+    //Este es para acceder a los puertos de propperties, random
+    //@Value("${server.port}")
+    //private Integer puerto;
     /**
      * Endpoint para consultar todos los productos
      * @return una lista de productos
@@ -38,6 +43,7 @@ public class ProductoController {
                 stream().
                 map(producto -> {
                     producto.setPuerto(Integer.parseInt(environment.getProperty("local.server.port")));
+                    //producto.setPuerto(puerto);
                     return producto;
                 }).collect(Collectors.toList());
         return new ResponseEntity<List<Producto>>(productos, HttpStatus.OK);
@@ -55,11 +61,23 @@ public class ProductoController {
         try{
             producto = productoServiceDAO.buscarPorId(productoId);
             producto.get().setPuerto(Integer.parseInt(environment.getProperty("local.server.port")));
+            //producto.get().setPuerto(puerto);
         }
         catch (Exception e){
-            logger.info(e.getMessage() + "Causa: " + e.getCause());
+            logger.info("mensaje: " + e.getMessage() + "Causa: " + e.getCause());
             throw e;
         }
+
+        /*
+        try {
+            Thread.sleep(2000L);
+        } catch (InterruptedException e) {
+            logger.info("mensaje: " + e.getMessage() + "Causa: " + e.getCause());
+            e.printStackTrace();
+        }
+
+         */
+
 
         return new ResponseEntity<Producto>(producto.get(), HttpStatus.OK);
 
